@@ -13,16 +13,18 @@ int DIREC[4][2] = {-1,0,0,1,1,0,0,-1};//givenext D,L,U,R  , to go U,R,D,L
 int m,n,B,cur_B;
 void checkback(int x,int y,int start_x,int start_y,bool**visited,int**dist,int**dist2){
     int i,nx,ny;
-    if(dist[x][y]==-1) return;
+    if(dist2[x][y]==-1) return;
     for(int i=0;i<=3;i++){
             nx = x-DIREC[i][0];
             ny = y-DIREC[i][1];
+            if(dist2[nx][ny]==-1) return;
+            if(nx==0||nx==m+1||ny==0||ny==n+1) break;
         if(visited[nx][ny]
-               &&(dist[nx][ny]>=dist[nx-1][ny])
-               &&(dist[nx][ny]>=dist[nx+1][ny])
-               &&(dist[nx][ny]>=dist[nx][ny-1])
-               &&(dist[nx][ny]>=dist[nx][ny+1])){
-             dist[x][y] = -1;
+               &&(dist[nx][ny]>dist[nx-1][ny])
+               &&(dist[nx][ny]>dist[nx+1][ny])
+               &&(dist[nx][ny]>dist[nx][ny-1])
+               &&(dist[nx][ny]>dist[nx][ny+1])){
+             dist[nx][ny] = -1;
             checkback(nx,ny,start_x,start_y,visited,dist,dist2);
          }
     }
@@ -33,11 +35,12 @@ void doublecheck(int x,int y,int outdir,int start_x,int start_y,bool**visited,in
         if(i!=outdir) {
             nx = x-DIREC[i][0];
             ny = y-DIREC[i][1];
+            if(nx==0||nx==m+1||ny==0||ny==n+1) break;
             if(visited[nx][ny]
-               &&(dist[nx][ny]>=dist[nx-1][ny])
-               &&(dist[nx][ny]>=dist[nx+1][ny])
-               &&(dist[nx][ny]>=dist[nx][ny-1])
-               &&(dist[nx][ny]>=dist[nx][ny+1])){
+               &&(dist[nx][ny]>dist[nx-1][ny])
+               &&(dist[nx][ny]>dist[nx+1][ny])
+               &&(dist[nx][ny]>dist[nx][ny-1])
+               &&(dist[nx][ny]>dist[nx][ny+1])){
                     dist[nx][ny]=-1;
                     checkback(nx,ny,start_x,start_y,visited,dist,dist2);
             }
@@ -45,20 +48,24 @@ void doublecheck(int x,int y,int outdir,int start_x,int start_y,bool**visited,in
     }
 }
 void check(int x,int y,int indir,int outdir,int start_x,int start_y,bool**visited,int**dist,int**dist2){
-     if(indir==outdir+2||indir+2==outdir) if(x!=start_x||y!=start_y)  dist[x][y] = -1;
-      if((x!=start_x||y!=start_y)&&
-         dist[x][y]>=dist[x-1][y]&&dist[x][y]>=dist[x+1][y]&&dist[x][y]>=dist[x][y-1]&&dist[x][y]>=dist[x][y+1])
-     {dist[x][y] = -1;
-     doublecheck(x,y,outdir,start_x,start_y,visited,dist,dist2);
+     if((indir==outdir+2)||(indir+2==outdir) )if(x!=start_x||y!=start_y) {cout<<"G"<<endl; dist[x][y] = -1;}
+     if((x!=start_x||y!=start_y)&&visited[x-1][y]&&visited[x+1][y]&&visited[x][y-1]&&visited[x][y+1]
+        &&(dist[x][y]>dist[x+DIREC[outdir][0]][y+DIREC[outdir][1]])
+        &&(dist[x][y]>dist[x+DIREC[(outdir+1)%4][0]][y+DIREC[(outdir+1)%4][1]])
+        &&(dist[x][y]>dist[x+DIREC[(outdir+2)%4][0]][y+DIREC[(outdir+2)%4][1]])
+        &&(dist[x][y]>dist[x+DIREC[(outdir+3)%4][0]][y+DIREC[(outdir+3)%4][1]])){
+                dist[x][y] = -1;
+                doublecheck(x,y,outdir,start_x,start_y,visited,dist,dist2);
      }
      return;
 }
 void checkb(int x,int y,int indir,int outdir,int start_x,int start_y,bool**visited,int**dist,int**dist2){
-    if((x!=start_x||y!=start_y)
-       &&(dist[x][y]>=dist[x+DIREC[outdir][0]][y+DIREC[outdir][1]])
-       &&(dist[x][y]>=dist[x+DIREC[(outdir+1)%4][0]][y+DIREC[(outdir+1)%4][1]])
-       &&(dist[x][y]>=dist[x+DIREC[(outdir+2)%4][0]][y+DIREC[(outdir+2)%4][1]])
-       &&(dist[x][y]>=dist[x+DIREC[(outdir+3)%4][0]][y+DIREC[(outdir+3)%4][1]]))
+    if((indir==outdir+2)||(indir+2==outdir) )if(x!=start_x||y!=start_y)  dist[x][y] = -1;
+    if((x!=start_x||y!=start_y)&&visited[x-1][y]&&visited[x+1][y]&&visited[x][y-1]&&visited[x][y+1]
+       &&(dist[x][y]>dist[x+DIREC[(outdir)%4][0]][y+DIREC[(outdir)%4][1]])
+       &&(dist[x][y]>dist[x+DIREC[(outdir+1)%4][0]][y+DIREC[(outdir+1)%4][1]])
+       &&(dist[x][y]>dist[x+DIREC[(outdir+2)%4][0]][y+DIREC[(outdir+2)%4][1]])
+       &&(dist[x][y]>dist[x+DIREC[(outdir+3)%4][0]][y+DIREC[(outdir+3)%4][1]]))
      {dist[x][y] = -1;
      doublecheck(x,y,outdir,start_x,start_y,visited,dist,dist2);
      }
@@ -67,10 +74,6 @@ void checkb(int x,int y,int indir,int outdir,int start_x,int start_y,bool**visit
 void walk(int cur_x,int cur_y,int dir,int start_x,int start_y,bool**visited,int**dist,int**dist2);
 void gohome(int cur_x,int cur_y,int dir,int start_x,int start_y,bool**visited,int**dist,int**dist2){  //indir
     if(count==0) {return;}
-    /*for(int i=0;i<=m+1;i++) {
-        for(int j=0 ; j<=n+1 ; j++)
-            {   cout<< setw(3) << dist[i][j]<<' ';}
-                cout<<endl;}*/
     wow_x = cur_x; wow_y = cur_y;
     cur_B = cur_B-1;
     if(visited[cur_x][cur_y]==false) {
@@ -87,18 +90,10 @@ void gohome(int cur_x,int cur_y,int dir,int start_x,int start_y,bool**visited,in
                 Path.emplace_back(cur_y-1);
         }
     }
-    //cout<<"home"<<cur_x<<","<<cur_y<<",d:"<<dist[cur_x][cur_y]<<",dir:"<<dir<<",count:"<<count<<endl;
+    cout<<"home"<<cur_x<<","<<cur_y<<",d:"<<dist[cur_x][cur_y]<<",dir:"<<dir<<",count:"<<count<<endl;
     if(cur_x==start_x&&cur_y==start_y) {walk(cur_x,cur_y,dir,start_x,start_y,visited,dist,dist2); return;}
-    else{
-        if(count==0) return;
-        /*if(count!=0&&((dist2[cur_x+DIREC[(dir+1)%4][0]][cur_y+DIREC[(dir+1)%4][1]]==-1&&
-           dist2[cur_x+DIREC[(dir+2)%4][0]][cur_y+DIREC[(dir+2)%4][1]]==-1&&
-            dist2[cur_x+DIREC[(dir+3)%4][0]][cur_y+DIREC[(dir+3)%4][1]]==-1)
-           ||(cur_B==dist2[cur_x][cur_y]||cur_B==dist2[cur_x][cur_y]+1))) {
-            gohome(cur_x+DIREC[dir][0],cur_y+DIREC[dir][1],(dir+2)%4,start_x,start_y,visited,dist,dist2);
-            //dist[cur_x][cur_y] = -1;
-        }*/
-        if(count!=0&&dist2[cur_x+DIREC[(dir+1)%4][0]][cur_y+DIREC[(dir+1)%4][1]]==dist2[cur_x][cur_y]-1
+    /*else{
+        if(count!=0&&dist2[cur_x+DIREC[(dir+1)%4][0]][cur_y+DIREC[(dir+1)%4][1]]==dist2[cur_x][cur_y]+1
            &&dist[cur_x+DIREC[(dir+1)%4][0]][cur_y+DIREC[(dir+1)%4][1]]!=-1
            &&!visited[cur_x+DIREC[(dir+1)%4][0]][cur_y+DIREC[(dir+1)%4][1]]
            &&cur_B-1>=dist2[cur_x+DIREC[(dir+1)%4][0]][cur_y+DIREC[(dir+1)%4][1]])
@@ -107,7 +102,7 @@ void gohome(int cur_x,int cur_y,int dir,int start_x,int start_y,bool**visited,in
                 walk(cur_x+DIREC[(dir+1)%4][0],cur_y+DIREC[(dir+1)%4][1],(dir+3)%4,start_x,start_y,visited,dist,dist2);
                 return;
             }
-        else if(count!=0&&dist2[cur_x+DIREC[(dir+2)%4][0]][cur_y+DIREC[(dir+2)%4][1]]==dist2[cur_x][cur_y]-1
+        else if(count!=0&&dist2[cur_x+DIREC[(dir+2)%4][0]][cur_y+DIREC[(dir+2)%4][1]]==dist2[cur_x][cur_y]+1
                 &&dist[cur_x+DIREC[(dir+2)%4][0]][cur_y+DIREC[(dir+2)%4][1]]!=-1
                 &&!visited[cur_x+DIREC[(dir+2)%4][0]][cur_y+DIREC[(dir+2)%4][1]]
                 &&cur_B-1>=dist2[cur_x+DIREC[(dir+2)%4][0]][cur_y+DIREC[(dir+2)%4][1]])
@@ -116,7 +111,7 @@ void gohome(int cur_x,int cur_y,int dir,int start_x,int start_y,bool**visited,in
                 walk(cur_x+DIREC[(dir+2)%4][0],cur_y+DIREC[(dir+2)%4][1],(dir+0)%4,start_x,start_y,visited,dist,dist2);
                 return;
             }
-        else if(count!=0&&dist2[cur_x+DIREC[(dir+3)%4][0]][cur_y+DIREC[(dir+3)%4][1]]==dist2[cur_x][cur_y]-1
+        else if(count!=0&&dist2[cur_x+DIREC[(dir+3)%4][0]][cur_y+DIREC[(dir+3)%4][1]]==dist2[cur_x][cur_y]+1
                 &&dist[cur_x+DIREC[(dir+3)%4][0]][cur_y+DIREC[(dir+3)%4][1]]!=-1
                 &&!visited[cur_x+DIREC[(dir+3)%4][0]][cur_y+DIREC[(dir+3)%4][1]]
                 &&cur_B-1>=dist2[cur_x+DIREC[(dir+3)%4][0]][cur_y+DIREC[(dir+3)%4][1]])
@@ -124,9 +119,8 @@ void gohome(int cur_x,int cur_y,int dir,int start_x,int start_y,bool**visited,in
                 check(cur_x,cur_y,dir,(dir+1)%4,start_x,start_y,visited,dist,dist2);
                 walk(cur_x+DIREC[(dir+3)%4][0],cur_y+DIREC[(dir+3)%4][1],(dir+1)%4,start_x,start_y,visited,dist,dist2);
                 return;
-            }
+            }*/
         else{
-
             if(count!=0&&dist2[cur_x+DIREC[(dir+1)%4][0]][cur_y+DIREC[(dir+1)%4][1]]==dist2[cur_x][cur_y]-1
                &&dist[cur_x+DIREC[(dir+1)%4][0]][cur_y+DIREC[(dir+1)%4][1]]!=-1
                &&cur_B-1>=dist2[cur_x+DIREC[(dir+1)%4][0]][cur_y+DIREC[(dir+1)%4][1]])
@@ -151,24 +145,23 @@ void gohome(int cur_x,int cur_y,int dir,int start_x,int start_y,bool**visited,in
                     gohome(cur_x+DIREC[(dir+3)%4][0],cur_y+DIREC[(dir+3)%4][1],(dir+1)%4,start_x,start_y,visited,dist,dist2);
                     return;
                 }
-
-        }
+        //}
     }
     if(count==0) return;
 }
 void walk(int cur_x,int cur_y,int dir,int start_x,int start_y,bool**visited,int**dist,int**dist2){  //in_dir
     if(count==0) return;
-    if(dist[cur_x][cur_y]==-1)  return;
+    if(dist2[cur_x][cur_y]==-1)  return;
     cur_B=cur_B-1;
-   /*for(int i=0;i<=m+1;i++) {
+   for(int i=0;i<=m+1;i++) {
         for(int j=0 ; j<=n+1 ; j++)
             {   cout<< setw(3) << dist[i][j]<<' ';}
-                cout<<endl;}*/
+                cout<<endl;}
     wow_x = cur_x; wow_y = cur_y;
     if(visited[cur_x][cur_y]==false) {
         if(cur_x!=start_x||cur_y!=start_y){visited[cur_x][cur_y] = true; count--;}
     }
-    //cout<<cur_x<<","<<cur_y<<",d:"<<dist[cur_x][cur_y]<<",dir"<<dir<<",count:"<<count<<"B"<<cur_B<<endl;
+    cout<<cur_x<<","<<cur_y<<",d:"<<dist[cur_x][cur_y]<<",dir"<<dir<<",count:"<<count<<"B"<<cur_B<<endl;
     if(Path.empty()) {
         Path.emplace_back(cur_x-1);
         Path.emplace_back(cur_y-1);
@@ -191,16 +184,30 @@ void walk(int cur_x,int cur_y,int dir,int start_x,int start_y,bool**visited,int*
     }
     else{
          if(
-        ((dist[cur_x+DIREC[(dir+1)%4][0]][cur_y+DIREC[(dir+1)%4][1]]==-1)&&
-        (dist[cur_x+DIREC[(dir+2)%4][0]][cur_y+DIREC[(dir+2)%4][1]]==-1)&&
-        (dist[cur_x+DIREC[(dir+3)%4][0]][cur_y+DIREC[(dir+3)%4][1]]==-1))
+        ((dist2[cur_x+DIREC[(dir+1)%4][0]][cur_y+DIREC[(dir+1)%4][1]]==-1)&&
+        (dist2[cur_x+DIREC[(dir+2)%4][0]][cur_y+DIREC[(dir+2)%4][1]]==-1)&&
+        (dist2[cur_x+DIREC[(dir+3)%4][0]][cur_y+DIREC[(dir+3)%4][1]]==-1))
         ||(cur_B==dist2[cur_x][cur_y]||cur_B==dist2[cur_x][cur_y]+1))
         {
-                cur_B=cur_B+1;
-                checkb(cur_x,cur_y,dir,(dir+2)%4,start_x,start_y,visited,dist,dist2);
-                gohome(cur_x+DIREC[dir][0],cur_y+DIREC[dir][1],(dir+2)%4,start_x,start_y,visited,dist,dist2);
+            cur_B=cur_B+1;
+            if(dist2[cur_x+DIREC[(dir+1)%4][0]][cur_y+DIREC[(dir+1)%4][1]]==dist2[cur_x][cur_y]-1) {
+            checkb(cur_x,cur_y,dir,(dir+3)%4,start_x,start_y,visited,dist,dist2);
+            gohome(cur_x+DIREC[(dir+1)%4][0],cur_y+DIREC[(dir+1)%4][1],(dir+3)%4,start_x,start_y,visited,dist,dist2);
             }
-
+            else if(dist2[cur_x+DIREC[(dir+2)%4][0]][cur_y+DIREC[(dir+2)%4][1]]==dist2[cur_x][cur_y]-1) {
+            checkb(cur_x,cur_y,dir,(dir+0)%4,start_x,start_y,visited,dist,dist2);
+            gohome(cur_x+DIREC[(dir+2)%4][0],cur_y+DIREC[(dir+2)%4][1],(dir+0)%4,start_x,start_y,visited,dist,dist2);
+            }
+            else if(dist2[cur_x+DIREC[(dir+3)%4][0]][cur_y+DIREC[(dir+3)%4][1]]==dist2[cur_x][cur_y]-1) {
+            checkb(cur_x,cur_y,dir,(dir+1)%4,start_x,start_y,visited,dist,dist2);
+            gohome(cur_x+DIREC[(dir+3)%4][0],cur_y+DIREC[(dir+3)%4][1],(dir+1)%4,start_x,start_y,visited,dist,dist2);
+            }
+            else if(dist2[cur_x+DIREC[dir][0]][cur_y+DIREC[dir][1]]==dist2[cur_x][cur_y]-1) {
+            checkb(cur_x,cur_y,dir,(dir+2)%4,start_x,start_y,visited,dist,dist2);
+            gohome(cur_x+DIREC[dir][0],cur_y+DIREC[dir][1],(dir+2)%4,start_x,start_y,visited,dist,dist2);
+            }
+        }
+    else{
         if(count!=0&&dist[cur_x+DIREC[(dir+1)%4][0]][cur_y+DIREC[(dir+1)%4][1]]==dist[cur_x][cur_y]+1
                     &&(!visited[cur_x+DIREC[(dir+1)%4][0]][cur_y+DIREC[(dir+1)%4][1]])
                     &&cur_B-1>=dist2[cur_x+DIREC[(dir+1)%4][0]][cur_y+DIREC[(dir+1)%4][1]])
@@ -226,22 +233,25 @@ void walk(int cur_x,int cur_y,int dir,int start_x,int start_y,bool**visited,int*
                         return;
                   }
         else{
-            if(count!=0&&dist[cur_x+DIREC[(dir+1)%4][0]][cur_y+DIREC[(dir+1)%4][1]]==dist[cur_x][cur_y]+1
+            if(count!=0&&dist[cur_x+DIREC[(dir+1)%4][0]][cur_y+DIREC[(dir+1)%4][1]]!=-1
+                    &&(!visited[cur_x+DIREC[(dir+1)%4][0]][cur_y+DIREC[(dir+1)%4][1]])
                     &&cur_B-1>=dist2[cur_x+DIREC[(dir+1)%4][0]][cur_y+DIREC[(dir+1)%4][1]])
                     {
                         check(cur_x,cur_y,dir,(dir+3)%4,start_x,start_y,visited,dist,dist2);
                         walk(cur_x+DIREC[(dir+1)%4][0],cur_y+DIREC[(dir+1)%4][1],(dir+3)%4,start_x,start_y,visited,dist,dist2);
                         return;
               }
-            else if(count!=0&&dist[cur_x+DIREC[(dir+2)%4][0]][cur_y+DIREC[(dir+2)%4][1]]==dist[cur_x][cur_y]+1
-               &&cur_B-1>=dist2[cur_x+DIREC[(dir+2)%4][0]][cur_y+DIREC[(dir+2)%4][1]])
+            else if(count!=0&&dist[cur_x+DIREC[(dir+2)%4][0]][cur_y+DIREC[(dir+2)%4][1]]!=-1
+                    &&(!visited[cur_x+DIREC[(dir+2)%4][0]][cur_y+DIREC[(dir+2)%4][1]])
+                    &&cur_B-1>=dist2[cur_x+DIREC[(dir+2)%4][0]][cur_y+DIREC[(dir+2)%4][1]])
                     {
                         check(cur_x,cur_y,dir,(dir+0)%4,start_x,start_y,visited,dist,dist2);
                         walk(cur_x+DIREC[(dir+2)%4][0],cur_y+DIREC[(dir+2)%4][1],(dir+0)%4,start_x,start_y,visited,dist,dist2);
                         return;
                   }
-            else if(count!=0&&dist[cur_x+DIREC[(dir+3)%4][0]][cur_y+DIREC[(dir+3)%4][1]]==dist[cur_x][cur_y]+1
-                &&cur_B-1>=dist2[cur_x+DIREC[(dir+3)%4][0]][cur_y+DIREC[(dir+3)%4][1]])
+            else if(count!=0&&dist[cur_x+DIREC[(dir+3)%4][0]][cur_y+DIREC[(dir+3)%4][1]]!=-1
+                    &&(!visited[cur_x+DIREC[(dir+3)%4][0]][cur_y+DIREC[(dir+3)%4][1]])
+                    &&cur_B-1>=dist2[cur_x+DIREC[(dir+3)%4][0]][cur_y+DIREC[(dir+3)%4][1]])
                     {
                         check(cur_x,cur_y,dir,(dir+1)%4,start_x,start_y,visited,dist,dist2);
                         walk(cur_x+DIREC[(dir+3)%4][0],cur_y+DIREC[(dir+3)%4][1],(dir+1)%4,start_x,start_y,visited,dist,dist2);
@@ -249,26 +259,50 @@ void walk(int cur_x,int cur_y,int dir,int start_x,int start_y,bool**visited,int*
                   }
             else{
                 if(count!=0&&dist[cur_x+DIREC[(dir+1)%4][0]][cur_y+DIREC[(dir+1)%4][1]]!=-1
-                    &&cur_B-1>=dist2[cur_x+DIREC[(dir+1)%4][0]][cur_y+DIREC[(dir+1)%4][1]])
+                        &&cur_B-1>=dist2[cur_x+DIREC[(dir+1)%4][0]][cur_y+DIREC[(dir+1)%4][1]])
                         {
                             check(cur_x,cur_y,dir,(dir+3)%4,start_x,start_y,visited,dist,dist2);
                             walk(cur_x+DIREC[(dir+1)%4][0],cur_y+DIREC[(dir+1)%4][1],(dir+3)%4,start_x,start_y,visited,dist,dist2);
                             return;
-                       }
+                }
                 else if(count!=0&&dist[cur_x+DIREC[(dir+2)%4][0]][cur_y+DIREC[(dir+2)%4][1]]!=-1
-                        &&cur_B-1>=dist2[cur_x+DIREC[(dir+2)%4][0]][cur_y+DIREC[(dir+2)%4][1]])
+                &&cur_B-1>=dist2[cur_x+DIREC[(dir+2)%4][0]][cur_y+DIREC[(dir+2)%4][1]])
                         {
                             check(cur_x,cur_y,dir,(dir+0)%4,start_x,start_y,visited,dist,dist2);
                             walk(cur_x+DIREC[(dir+2)%4][0],cur_y+DIREC[(dir+2)%4][1],(dir+0)%4,start_x,start_y,visited,dist,dist2);
                             return;
-                     }
+                    }
                 else if(count!=0&&dist[cur_x+DIREC[(dir+3)%4][0]][cur_y+DIREC[(dir+3)%4][1]]!=-1
-                        &&cur_B-1>=dist2[cur_x+DIREC[(dir+3)%4][0]][cur_y+DIREC[(dir+3)%4][1]])
+                    &&cur_B-1>=dist2[cur_x+DIREC[(dir+3)%4][0]][cur_y+DIREC[(dir+3)%4][1]])
                         {
                             check(cur_x,cur_y,dir,(dir+1)%4,start_x,start_y,visited,dist,dist2);
                             walk(cur_x+DIREC[(dir+3)%4][0],cur_y+DIREC[(dir+3)%4][1],(dir+1)%4,start_x,start_y,visited,dist,dist2);
                             return;
-                     }
+                    }
+                else{
+                    if(count!=0&&dist2[cur_x+DIREC[(dir+1)%4][0]][cur_y+DIREC[(dir+1)%4][1]]!=-1
+                        &&cur_B-1>=dist2[cur_x+DIREC[(dir+1)%4][0]][cur_y+DIREC[(dir+1)%4][1]])
+                        {
+                            check(cur_x,cur_y,dir,(dir+3)%4,start_x,start_y,visited,dist,dist2);
+                            walk(cur_x+DIREC[(dir+1)%4][0],cur_y+DIREC[(dir+1)%4][1],(dir+3)%4,start_x,start_y,visited,dist,dist2);
+                            return;
+                    }
+                    else if(count!=0&&dist2[cur_x+DIREC[(dir+2)%4][0]][cur_y+DIREC[(dir+2)%4][1]]!=-1
+                    &&cur_B-1>=dist2[cur_x+DIREC[(dir+2)%4][0]][cur_y+DIREC[(dir+2)%4][1]])
+                        {
+                            check(cur_x,cur_y,dir,(dir+0)%4,start_x,start_y,visited,dist,dist2);
+                            walk(cur_x+DIREC[(dir+2)%4][0],cur_y+DIREC[(dir+2)%4][1],(dir+0)%4,start_x,start_y,visited,dist,dist2);
+                            return;
+                    }
+                    else if(count!=0&&dist2[cur_x+DIREC[(dir+3)%4][0]][cur_y+DIREC[(dir+3)%4][1]]!=-1
+                    &&cur_B-1>=dist2[cur_x+DIREC[(dir+3)%4][0]][cur_y+DIREC[(dir+3)%4][1]])
+                        {
+                            check(cur_x,cur_y,dir,(dir+1)%4,start_x,start_y,visited,dist,dist2);
+                            walk(cur_x+DIREC[(dir+3)%4][0],cur_y+DIREC[(dir+3)%4][1],(dir+1)%4,start_x,start_y,visited,dist,dist2);
+                            return;
+                        }
+                    }
+                }
             }
         }
     }
@@ -281,9 +315,13 @@ void BFS(int x,int y,bool**visited,int **dist,char**M){
     if(M[x][y-1]=='0'&&!visited[x][y-1]) {dist[x][y-1] = dist[x][y]+1; visited[x][y-1] = 1;Q.push(x);Q.push(y-1);}
 }
 int main(){
+    fstream testcase;
     int x , y ,start_x,start_y;
     int cur_x,cur_y;
 
+    string a,b,path1,path2;
+    a = "/floor.data";
+    b = "/final.path";
 
     cin>>m;
     cin>>n;
@@ -317,6 +355,8 @@ int main(){
             }
         }
     }
+    //testcase.close();
+
     Q.push(x);
     Q.push(y);
     visited[x][y] = true;
@@ -331,7 +371,7 @@ int main(){
 
     for(int i=0;i<=m+1;i++)  for(int j=0 ; j<=n+1 ; j++)  {
         dist2[i][j] = dist[i][j];
-        if(M[i][j]=='0'||'R') visited[i][j] = false;
+        if(M[i][j]=='0'||M[i][j]=='R') visited[i][j] = false;
         else visited[i][j] = true;
         }
     cur_x = start_x;
@@ -339,26 +379,30 @@ int main(){
     cur_B = B;
 
     if(count!=0){
+            cout<<"DIR1"<<endl;
             walk(cur_x-1,cur_y,2,start_x,start_y,visited,dist,dist2);
         if(count!=0){
+            cout<<"DIR2"<<endl;
             walk(cur_x,cur_y+1,3,start_x,start_y,visited,dist,dist2);}
-        if(count!=0)
-            walk(cur_x+1,cur_y,0,start_x,start_y,visited,dist,dist2);
-        if(count!=0)
-            walk(cur_x,cur_y-1,1,start_x,start_y,visited,dist,dist2);
+        if(count!=0){
+                cout<<"DIR3"<<endl;
+            walk(cur_x+1,cur_y,0,start_x,start_y,visited,dist,dist2);}
+        if(count!=0){
+                cout<<"DIR4"<<endl;
+            walk(cur_x,cur_y-1,1,start_x,start_y,visited,dist,dist2);}
 
         while(dist2[wow_x][wow_y]!=0){
 
             if(Path.empty()) {
-                Path.emplace_back(wow_x-1);
-                Path.emplace_back(wow_y-1);
+                Path.push_back(wow_x-1);
+                Path.push_back(wow_y-1);
             }
             else{
                 auto it = Path.end();
                 if(*(it-2)==wow_x-1 && *(it-1)==wow_y-1) {}
                 else{
-                        Path.emplace_back(wow_x-1);
-                        Path.emplace_back(wow_y-1);
+                        Path.push_back(wow_x-1);
+                        Path.push_back(wow_y-1);
                 }
             }
             if(dist2[wow_x-1][wow_y]==dist2[wow_x][wow_y]-1) {wow_x=wow_x-1; wow_y=wow_y;}
@@ -366,13 +410,11 @@ int main(){
             else if(dist2[wow_x][wow_y+1]==dist2[wow_x][wow_y]-1) {wow_x=wow_x; wow_y=wow_y+1;}
             else if(dist2[wow_x][wow_y-1]==dist2[wow_x][wow_y]-1) {wow_x=wow_x; wow_y=wow_y-1;}
         }
-        Path.emplace_back(start_x-1);
-        Path.emplace_back(start_y-1);
+        Path.push_back(start_x-1);
+        Path.push_back(start_y-1);
         }
-        cout<<"count:"<<count<<endl;
 
-
-    for (int i = 0; i <=n+1; i++){
+    for (int i = 0; i <=m+1; i++){
         delete [] M[i];
         delete [] dist[i];
         delete [] visited[i];

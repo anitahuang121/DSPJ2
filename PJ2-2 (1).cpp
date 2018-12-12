@@ -54,6 +54,7 @@ void check(int x,int y,int indir,int outdir,int start_x,int start_y,bool**visite
      return;
 }
 void checkb(int x,int y,int indir,int outdir,int start_x,int start_y,bool**visited,int**dist,int**dist2){
+   // if(indir==outdir+2||indir+2==outdir) if(x!=start_x||y!=start_y) dist[x][y] = -1;
     if((x!=start_x||y!=start_y)
        &&(dist[x][y]>=dist[x+DIREC[outdir][0]][y+DIREC[outdir][1]])
        &&(dist[x][y]>=dist[x+DIREC[(outdir+1)%4][0]][y+DIREC[(outdir+1)%4][1]])
@@ -67,27 +68,27 @@ void checkb(int x,int y,int indir,int outdir,int start_x,int start_y,bool**visit
 void walk(int cur_x,int cur_y,int dir,int start_x,int start_y,bool**visited,int**dist,int**dist2);
 void gohome(int cur_x,int cur_y,int dir,int start_x,int start_y,bool**visited,int**dist,int**dist2){  //indir
     if(count==0) {return;}
-    /*for(int i=0;i<=m+1;i++) {
+    for(int i=0;i<=m+1;i++) {
         for(int j=0 ; j<=n+1 ; j++)
             {   cout<< setw(3) << dist[i][j]<<' ';}
-                cout<<endl;}*/
+                cout<<endl;}
     wow_x = cur_x; wow_y = cur_y;
     cur_B = cur_B-1;
     if(visited[cur_x][cur_y]==false) {
             if(cur_x!=start_x||cur_y!=start_y){visited[cur_x][cur_y] = true; count--;}
         }
     if(Path.empty()) {
-        Path.emplace_back(cur_x-1);
-        Path.emplace_back(cur_y-1);
+        Path.push_back(cur_x-1);
+        Path.push_back(cur_y-1);
     }
     else{
         if(*(Path.end()-2)==cur_x-1 && *(Path.end()-1)==cur_y-1) {}
         else{
-                Path.emplace_back(cur_x-1);
-                Path.emplace_back(cur_y-1);
+                Path.push_back(cur_x-1);
+                Path.push_back(cur_y-1);
         }
     }
-    //cout<<"home"<<cur_x<<","<<cur_y<<",d:"<<dist[cur_x][cur_y]<<",dir:"<<dir<<",count:"<<count<<endl;
+    cout<<"home"<<cur_x<<","<<cur_y<<",d:"<<dist[cur_x][cur_y]<<",dir:"<<dir<<",count:"<<count<<endl;
     if(cur_x==start_x&&cur_y==start_y) {walk(cur_x,cur_y,dir,start_x,start_y,visited,dist,dist2); return;}
     else{
         if(count==0) return;
@@ -98,6 +99,7 @@ void gohome(int cur_x,int cur_y,int dir,int start_x,int start_y,bool**visited,in
             gohome(cur_x+DIREC[dir][0],cur_y+DIREC[dir][1],(dir+2)%4,start_x,start_y,visited,dist,dist2);
             //dist[cur_x][cur_y] = -1;
         }*/
+
         if(count!=0&&dist2[cur_x+DIREC[(dir+1)%4][0]][cur_y+DIREC[(dir+1)%4][1]]==dist2[cur_x][cur_y]-1
            &&dist[cur_x+DIREC[(dir+1)%4][0]][cur_y+DIREC[(dir+1)%4][1]]!=-1
            &&!visited[cur_x+DIREC[(dir+1)%4][0]][cur_y+DIREC[(dir+1)%4][1]]
@@ -105,6 +107,7 @@ void gohome(int cur_x,int cur_y,int dir,int start_x,int start_y,bool**visited,in
             {
                 check(cur_x,cur_y,dir,(dir+3)%4,start_x,start_y,visited,dist,dist2);
                 walk(cur_x+DIREC[(dir+1)%4][0],cur_y+DIREC[(dir+1)%4][1],(dir+3)%4,start_x,start_y,visited,dist,dist2);
+
                 return;
             }
         else if(count!=0&&dist2[cur_x+DIREC[(dir+2)%4][0]][cur_y+DIREC[(dir+2)%4][1]]==dist2[cur_x][cur_y]-1
@@ -114,6 +117,7 @@ void gohome(int cur_x,int cur_y,int dir,int start_x,int start_y,bool**visited,in
             {
                 check(cur_x,cur_y,dir,(dir+0)%4,start_x,start_y,visited,dist,dist2);
                 walk(cur_x+DIREC[(dir+2)%4][0],cur_y+DIREC[(dir+2)%4][1],(dir+0)%4,start_x,start_y,visited,dist,dist2);
+
                 return;
             }
         else if(count!=0&&dist2[cur_x+DIREC[(dir+3)%4][0]][cur_y+DIREC[(dir+3)%4][1]]==dist2[cur_x][cur_y]-1
@@ -160,26 +164,27 @@ void walk(int cur_x,int cur_y,int dir,int start_x,int start_y,bool**visited,int*
     if(count==0) return;
     if(dist[cur_x][cur_y]==-1)  return;
     cur_B=cur_B-1;
-   /*for(int i=0;i<=m+1;i++) {
+   for(int i=0;i<=m+1;i++) {
         for(int j=0 ; j<=n+1 ; j++)
             {   cout<< setw(3) << dist[i][j]<<' ';}
-                cout<<endl;}*/
+                cout<<endl;}
     wow_x = cur_x; wow_y = cur_y;
     if(visited[cur_x][cur_y]==false) {
         if(cur_x!=start_x||cur_y!=start_y){visited[cur_x][cur_y] = true; count--;}
     }
-    //cout<<cur_x<<","<<cur_y<<",d:"<<dist[cur_x][cur_y]<<",dir"<<dir<<",count:"<<count<<"B"<<cur_B<<endl;
+    cout<<cur_x<<","<<cur_y<<",d:"<<dist[cur_x][cur_y]<<",dir"<<dir<<",count:"<<count<<"B"<<cur_B<<endl;
     if(Path.empty()) {
-        Path.emplace_back(cur_x-1);
-        Path.emplace_back(cur_y-1);
+        Path.push_back(cur_x-1);
+        Path.push_back(cur_y-1);
     }
     else{
         if(*(Path.end()-2)==cur_x-1 && *(Path.end()-1)==cur_y-1) {}
         else{
-                Path.emplace_back(cur_x-1);
-                Path.emplace_back(cur_y-1);
+                Path.push_back(cur_x-1);
+                Path.push_back(cur_y-1);
         }
     }
+
     if(cur_x==start_x&&cur_y==start_y) {
             cur_B = B;
             if(count!=0&&dir == 0)      {walk(cur_x+DIREC[0][0],cur_y+DIREC[0][1],2,start_x,start_y,visited,dist,dist2);return;}
@@ -248,6 +253,7 @@ void walk(int cur_x,int cur_y,int dir,int start_x,int start_y,bool**visited,int*
                         return;
                   }
             else{
+
                 if(count!=0&&dist[cur_x+DIREC[(dir+1)%4][0]][cur_y+DIREC[(dir+1)%4][1]]!=-1
                     &&cur_B-1>=dist2[cur_x+DIREC[(dir+1)%4][0]][cur_y+DIREC[(dir+1)%4][1]])
                         {
@@ -281,6 +287,7 @@ void BFS(int x,int y,bool**visited,int **dist,char**M){
     if(M[x][y-1]=='0'&&!visited[x][y-1]) {dist[x][y-1] = dist[x][y]+1; visited[x][y-1] = 1;Q.push(x);Q.push(y-1);}
 }
 int main(){
+    fstream testcase;
     int x , y ,start_x,start_y;
     int cur_x,cur_y;
 
@@ -317,6 +324,7 @@ int main(){
             }
         }
     }
+
     Q.push(x);
     Q.push(y);
     visited[x][y] = true;
@@ -337,7 +345,6 @@ int main(){
     cur_x = start_x;
     cur_y = start_y;
     cur_B = B;
-
     if(count!=0){
             walk(cur_x-1,cur_y,2,start_x,start_y,visited,dist,dist2);
         if(count!=0){
@@ -350,15 +357,14 @@ int main(){
         while(dist2[wow_x][wow_y]!=0){
 
             if(Path.empty()) {
-                Path.emplace_back(wow_x-1);
-                Path.emplace_back(wow_y-1);
+                Path.push_back(wow_x-1);
+                Path.push_back(wow_y-1);
             }
             else{
-                auto it = Path.end();
-                if(*(it-2)==wow_x-1 && *(it-1)==wow_y-1) {}
+                if(*(Path.end()-2)==wow_x-1 && *(Path.end()-1)==wow_y-1) {}
                 else{
-                        Path.emplace_back(wow_x-1);
-                        Path.emplace_back(wow_y-1);
+                        Path.push_back(wow_x-1);
+                        Path.push_back(wow_y-1);
                 }
             }
             if(dist2[wow_x-1][wow_y]==dist2[wow_x][wow_y]-1) {wow_x=wow_x-1; wow_y=wow_y;}
@@ -366,12 +372,19 @@ int main(){
             else if(dist2[wow_x][wow_y+1]==dist2[wow_x][wow_y]-1) {wow_x=wow_x; wow_y=wow_y+1;}
             else if(dist2[wow_x][wow_y-1]==dist2[wow_x][wow_y]-1) {wow_x=wow_x; wow_y=wow_y-1;}
         }
-        Path.emplace_back(start_x-1);
-        Path.emplace_back(start_y-1);
+        Path.push_back(start_x-1);
+        Path.push_back(start_y-1);
         }
-        cout<<"count:"<<count<<endl;
+        cout<<count<<endl;
+        cout<<Path.size()/2<<endl;
 
-
+        for(int it = 0;it<Path.size();it=it+2){
+            cout<<Path.at(it)<<' '<<Path.at(it+1)<<endl;
+        }
+   /* for(int i=0;i<=m+1;i++) {
+        for(int j=0 ; j<=n+1 ; j++)
+            {cout<< visited[i][j]<<' ';}
+            cout<<endl;}*/
     for (int i = 0; i <=n+1; i++){
         delete [] M[i];
         delete [] dist[i];
